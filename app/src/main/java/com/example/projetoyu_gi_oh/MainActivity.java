@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -24,7 +25,11 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     TextView textResult;
-//List<Carta> cartasList;
+    //List<Carta> cartasList;
+    EditText inputNome;
+    EditText inputDescricao;
+    EditText inputAtaque;
+    EditText inputDefesa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +37,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //cartasList = new ArrayList<>();
         textResult = findViewById(R.id.textResult);
+        inputNome = findViewById(R.id.inputNome);
+        inputDescricao = findViewById(R.id.inputDescricao);
+        inputAtaque = findViewById(R.id.inputAtaque);
+        inputDefesa = findViewById(R.id.inputDefesa);
     }
 
-    public void SolicitarDado(View view) {
+    public void solicitarDado(View view) {
         RequestQueue queue = Volley.newRequestQueue(this);
         textResult.setText("Carregando..");
         String url = "http://10.0.2.2:8000/cartas/";
@@ -79,6 +88,54 @@ public class MainActivity extends AppCompatActivity {
                         textResult.setText(error.getMessage());
                     }
                 }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("X-Api-Key", "JISBaIhz.yJTHqlcL0xjdfWOgMzDOXTxzPYy4aAMm");
+
+                return params;
+            }
+        };
+
+        queue.add(request);
+    }
+
+    public void enviarDados(View view) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        //textResult.setText("Carregando..");
+        String url = "http://10.0.2.2:8000/cartas/";
+
+        String nomeC = inputNome.getText().toString();
+        String descC = inputDescricao.getText().toString();
+        String atkC = inputAtaque.getText().toString();
+        String defC = inputDefesa.getText().toString();
+
+        JSONObject cartaObj = new JSONObject();
+        try {
+            cartaObj.put("cartas_nome", nomeC);
+            cartaObj.put("cartas_descricao", descC);
+            cartaObj.put("cartas_atk", atkC);
+            cartaObj.put("cartas_def", defC);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
+                url,
+                cartaObj,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        textResult.setText(response.toString());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        textResult.setText(error.getMessage());
+                    }
+                }
+        ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
